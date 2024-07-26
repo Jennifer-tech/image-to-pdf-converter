@@ -16,6 +16,7 @@ export const AuthContextProvider = ({ children }) => {
 
     // This is used to keep track of the current user when they log in and log out
     const [user, setUser] = useState(null)
+    const [authReady, setAuthReady] = useState(false)
 
     // it used to fire when the component first mounts
     useEffect(() => {
@@ -24,9 +25,28 @@ export const AuthContextProvider = ({ children }) => {
             netlifyIdentity.close()
             console.log('login event')
         })
-        // init netlify identity connection
+
+        netlifyIdentity.on('logout', () => {
+            setUser(null)
+            console.log('logout event')
+        })
+
+        netlifyIdentity.on('init', () => {
+            // once netlifyIdentity has initialized, if there's a user logged in, we get that back through the setUser
+            setUser(user)
+            setAuthReady(true)
+            console.log('init event')
+        })
+
+         // init netlify identity connection
         // it initializes and makes connection to netlify which tells whether a user is logged in or not.
         netlifyIdentity.init()
+
+        return () => {
+            netlifyIdentity.off('login')
+            netlifyIdentity.off('logout')
+        }
+       
     }, [])
 
     const login = () => {
@@ -34,7 +54,11 @@ export const AuthContextProvider = ({ children }) => {
         netlifyIdentity.open()
     }
 
-    const context = { user, login}
+    const logout = () => {
+        netlifyIdentity.logout()
+    }
+
+    const context = { user, login, logout, authReady }
 
     // this is done so that it contains the value for the login and logout
     // AuthContext Provider wraps the entire application bcos it needs to wrap the components it provides the data to
