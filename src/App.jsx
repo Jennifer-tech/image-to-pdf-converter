@@ -1,6 +1,8 @@
-// import { useState } from 'react'
+import React from 'react'
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
 import './App.css'
 import NavBar from './components/NavBar'
+import Home from './components/Home'
 import { AuthContextProvider } from './components/stores/authContext';
 
 function App() {
@@ -8,7 +10,12 @@ function App() {
 
   return (
     <AuthContextProvider>
-      <NavBar />
+      <Router>
+        <NavBar />
+        <Routes>
+          <Route path='/' element={<Home />}/>
+        </Routes>
+      </Router>
       {/* <Component {...pageProps} /> */}
     </AuthContextProvider>
   )

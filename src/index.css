@@ -1,3 +1,25 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@font-face {
+    font-family: "Regular";
+    src: local('Lato-Regular'),
+    url('./assets/fonts/Lato/Lato-Regular.ttf') format("truetype");
+}
+@font-face {
+    font-family: "Medium";
+    src: local('Lato-Black'),
+    url('./assets/fonts/Lato/Lato-Black.ttf') format("truetype");
+}
+@font-face {
+    font-family: "Bold";
+    src: local('Lato-Bold'),
+    url('./assets/fonts/Lato/Lato-Bold.ttf') format("truetype");
+}
+
+@font-face {
+    font-family: "DancingScriptRegular";
+    src: local('DancingScript-Regular'),
+    url('./assets/fonts/Dancing_Script/static/DancingScript-Regular.ttf') format("truetype");
+}
