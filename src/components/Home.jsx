@@ -85,16 +85,16 @@ export default function Home() {
   }
 
   return (
-    <div className='flex w-full h-80vh items-center justify-center content center'>
-      <div className='flex flex-col max-w-80vw border border-red-500 justify-center items-center'>
+    <div className='flex w-full h-screen items-center justify-center'>
+      <div className='flex flex-col max-w-3xl h-auto border justify-center items-center shadow-lg shadow-blue-500/50 rounded-lg p-5 lg:w-full'>
         <h1 className='text-xl font-primaryBold p-5'>Convert Image to Pdf</h1>
-        <div className='flex justify-between m-5'>
-          <input type='file' ref={fileInputRef} multiple className='bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg' />
+        <div className='flex justify-between m-5 items-center w-full'>
+          <input type='file' ref={fileInputRef} multiple className='text-gray-900 text-base' />
           <button onClick={convertToPdf} className='border border-blue-700 rounded-3xl bg-blue-700 p-2 text-sm'>Convert to pdf</button>
         </div>
 
-        <div className='w-full h-2 border border-blue-700 m-5'>
-          <div className='progress h-full bg-blue-700 transition-all duration-300 ease-in-out' style={{ width: `${progress}` }}></div>
+        <div className='w-full h-2 border border-blue-300 m-5'>
+          <div className='progress h-full bg-blue-700 transition-all duration-300 ease-in-out' style={{ width: `${progress}%` }}></div>
         </div>
       </div>
     </div>
