@@ -2,12 +2,13 @@ import React, { useContext } from 'react'
 // import pdfLogo from '../assets/images/pdfLogo.png'
 import AuthContext from './stores/authContext'
 import { FaFilePdf } from "react-icons/fa";
-import { Link } from 'react-router-dom'
+// import { Link } from 'react-router-dom'
 
 
 export default function NavBar() {
   const { user, login, logout, authReady } = useContext(AuthContext)
   console.log('user', user)
+  console.log('authReady', authReady)
 
   return (
     <div className='h-80vh w-full border border-green-500'>
@@ -27,13 +28,14 @@ export default function NavBar() {
 
           {/* <ul>
             <li><Link to='/' className='text-white font-primaryRegular'>Home</Link></li> */}
-            {authReady && (
-              <div className='space-x-2'>
+            {/* <div>Hello</div> */}
+            {/* {authReady && ( */}
+              <div className='flex flex-row space-x-2'>
                 {!user && <button onClick={login} className='border px-4 py-1 rounded-3xl text-sm font-primaryRegular'>Login/Signup</button>}
-                {user && <p className='text-sm'>{user.email}</p>}
+                {user && <p className='text-[8px] lg:text-sm items-center'>{user.email}</p>}
                 {user && <button onClick={logout} className='border px-4 py-1 rounded-3xl text-sm font-primaryRegular'>Log out</button>}
               </div>
-            )}
+            {/* )} */}
           {/* </ul> */}
 
         </nav>

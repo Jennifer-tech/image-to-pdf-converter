@@ -1,10 +1,10 @@
-exports.handler = async () => {
-    console.log('function ran')
+// exports.handler = async () => {
+//     console.log('function ran')
 
-    const data = { name: 'mario', age: 35, job: 'programmer'}
+//     const data = { name: 'mario', age: 35, job: 'programmer'}
 
-    return {
-        statusCode: 200,
-        body: JSON.stringify(data)
-    }
-}
+//     return {
+//         statusCode: 200,
+//         body: JSON.stringify(data)
+//     }
+// }
