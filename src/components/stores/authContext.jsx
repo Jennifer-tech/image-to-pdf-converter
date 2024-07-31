@@ -18,12 +18,14 @@ export const AuthContextProvider = ({ children }) => {
     const [user, setUser] = useState(null)
     const [authReady, setAuthReady] = useState(false)
 
+    console.log('Auth context starting')
     // it used to fire when the component first mounts
     useEffect(() => {
         netlifyIdentity.on('login', (user) => {
             setUser(user)
             netlifyIdentity.close()
             console.log('login event')
+            setAuthReady(true)
         })
 
         netlifyIdentity.on('logout', () => {
@@ -32,6 +34,7 @@ export const AuthContextProvider = ({ children }) => {
         })
 
         netlifyIdentity.on('init', () => {
+            console.log('trying out init')
             // once netlifyIdentity has initialized, if there's a user logged in, we get that back through the setUser
             setUser(user)
             setAuthReady(true)
