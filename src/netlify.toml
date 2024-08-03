@@ -1,2 +1,5 @@
 [build]
-    functions = 'functions'
+    functions = 'netlify/functions'
+
+[build.environment]
+  DEPLOY_ID = "your-deploy-id"
