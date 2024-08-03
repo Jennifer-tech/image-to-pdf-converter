@@ -35,7 +35,7 @@ export default function NavBar() {
                 {user && <p className='text-[8px] lg:text-sm items-center'>{user.email}</p>}
                 {user && <button onClick={logout} className='border px-4 py-1 rounded-3xl text-sm font-primaryRegular'>Log out</button>}
               </div>
-            {/* )} */}
+            {/* // )} */}
           {/* </ul> */}
 
         </nav>

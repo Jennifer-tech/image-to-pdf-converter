@@ -2,6 +2,7 @@ import React, { useContext, useEffect, useRef, useState } from 'react'
 import axios from 'axios';
 import AuthContext from './stores/authContext'
 import netlifyIdentity from 'netlify-identity-widget'
+import { db, collection, addDoc, Timestamp } from '../../netlify/functions/firebase';
 
 export default function Home() {
   const { user } = useContext(AuthContext)
@@ -63,7 +64,14 @@ export default function Home() {
 
       if (response.data.pdf) {
         setPdf(response.data.pdf)
-        
+        if (user) {
+          await addDoc(collection(db, 'files'), {
+            userId: user.id,
+            filenames: Array.from(files).map(file => file.name),
+            fileUrl: response.data.pdf,
+            uploadedAt: Timestamp.fromDate(new Date())
+          })
+        }
         setMessage('File uploaded and linked to user successfully')
       } else {
         setMessage(response.data.message)
@@ -102,6 +110,60 @@ export default function Home() {
 
 
 
+
+// import React, { useState } from 'react';
+// import axios from 'axios';
+
+// export default function Upload() {
+//   const [file, setFile] = useState(null);
+//   const [message, setMessage] = useState('');
+
+//   const handleFileChange = (event) => {
+//     setFile(event.target.files[0]);
+//   };
+
+//   const handleUpload = async () => {
+//     if (!file) {
+//       setMessage('Please select a file first.');
+//       return;
+//     }
+
+//     const reader = new FileReader();
+//     reader.readAsDataURL(file);
+//     reader.onload = async () => {
+//       const base64File = reader.result.split(',')[1];
+
+//       try {
+//         const response = await axios.post('/.netlify/functions/upload', {
+//           file: base64File,
+//           filename: file.name,
+//         });
+
+//         setMessage(response.data.message);
+//       } catch (error) {
+//         setMessage('File upload failed.');
+//       }
+//     };
+//     reader.onerror = () => {
+//       setMessage('Error reading file.');
+//     };
+//   };
+
+//   return (
+//     <div>
+//       <input type="file" onChange={handleFileChange} />
+//       <button onClick={handleUpload}>Upload</button>
+//       <p>{message}</p>
+//     </div>
+//   );
+// }
+
+
+
+
+
+
+// ===========================================
 
 // const convertToPdf = () => {
 //   const files = fileInputRef.current.files;

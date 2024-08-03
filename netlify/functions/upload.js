@@ -1,25 +1,33 @@
+// import { useContext } from "react";
+
 const axios = require("axios");
 const { PDFDocument } = require("pdf-lib");
 const { Buffer } = require("buffer");
-// const { useContext } = require("react");
+const { getDeployStore } = require("@netlify/blobs");
+const { v4: uuidv4 } = require('uuid');
+const { jwtDecode } = require('jwt-decode');
+import { db, collection, addDoc, Timestamp } from './firebase';
+require('dotenv').config();
 
-export const handler = async (event, context) => {
-//   const { user } = useContext(AuthContext);
-  if (event.httpMethod !== "POST") {
+export const handler = async (req, context) => {
+  const deployID = process.env.DEPLOY_ID || context.clientContext.deployID
+  console.log('deployID', deployID)
+
+  if(!deployID) {
     return {
-      statusCode: 405,
-      body: "Method Not Allowed",
-    };
+      statusCode: 500,
+      body: JSON.stringify({ message: "DEPLOY_ID environment variable is not set" }),
+    }
   }
-
-  // const { files, filenames, userToken } = JSON.parse(event.body);
+console.log('no cry')
+  const userFiles = getDeployStore('userFiles', { deployID});
   let files, filenames, userToken;
   try {
-    const body = JSON.parse(event.body);
+    const body = JSON.parse(req.body);
     files = body.files;
     filenames = body.filenames;
+    console.log("Received files:", files, filenames, userToken);
     userToken = body.userToken;
-    console.log("Received files:", filenames);
   } catch (error) {
     console.error("Error parsing request body:", error);
     return {
@@ -27,10 +35,6 @@ export const handler = async (event, context) => {
       body: JSON.stringify({ message: "Invalid request body" }),
     };
   }
-
-  // console.log("file", files);
-  // console.log("filenames", filenames);
-  // console.log("user", user);
 
   if (!files || files.length === 0) {
     return {
@@ -68,22 +72,40 @@ export const handler = async (event, context) => {
     console.log("pdfBase64", pdfBase64);
 
     if (userToken) {
-      const response = await axios.post(
-        `https://api.netlify.com/api/v1/sites/4464ebc9-36f8-4a2d-a75e-7e0ed2a465d9/files`,
-        pdfBase64,
-        {
-          headers: {
-            Authorization: `Bearer ${userToken}`,
-            "content-Type": "application/pdf",
-          },
-        }
-      );
-      console.log("File uploaded successfuly")
+      const decodedToken = jwtDecode(userToken);
+      const userEmail = decodedToken.email
+
+      // const userFiles = getDeployStore('userFiles')
+      console.log('userFiles', userFiles)
+
+      const id = uuidv4()
+      // const id = crypto.randomUUID();
+      console.log('id', id)
+
+      await userFiles.set(id, pdfBase64)
+      await addDoc(collection(db, 'userFiles'), {
+        id,
+        userEmail,
+        filenames: filenames,
+        // filenames: Array.from(files).map(file => file.name),
+        uploadedAt: Timestamp.fromDate(new Date())
+      })
+      // const response = await axios.post(
+      //   `https://api.netlify.com/api/v1/sites/4464ebc9-36f8-4a2d-a75e-7e0ed2a465d9/files`,
+      //   pdfBase64,
+      //   {
+      //     headers: {
+      //       Authorization: `Bearer ${userToken}`,
+      //       "content-Type": "application/pdf",
+      //     },
+      //   }
+      // );
+      console.log("File uploaded successfuly to firestore")
       return {
         statusCode: 200,
         body: JSON.stringify({
           message: "File uploaded successfully",
-          data: response.data,
+          // data: response.data,
         }),
       };
     } else {
@@ -104,3 +126,45 @@ export const handler = async (event, context) => {
     };
   }
 };
+
+
+
+// const axios = require('axios');
+// const FormData = require('form-data');
+
+// export const handler = async (event, context) => {
+//   if (event.httpMethod !== 'POST') {
+//     return {
+//       statusCode: 405,
+//       body: 'Method Not Allowed',
+//     };
+//   }
+
+//   const { file, filename } = JSON.parse(event.body);
+//   const buffer = Buffer.from(file, 'base64');
+
+//   const formData = new FormData();
+//   formData.append('file', buffer, filename);
+
+//   try {
+//     const response = await axios.post('https://api.netlify.com/api/v1/sites/YOUR_SITE_ID/files', formData, {
+//       headers: {
+//         ...formData.getHeaders(),
+//         Authorization: `Bearer ${process.env.NETLIFY_ACCESS_TOKEN}`,
+//       },
+//     });
+
+//     return {
+//       statusCode: 200,
+//       body: JSON.stringify({ message: 'File uploaded successfully', data: response.data }),
+//     };
+//   } catch (error) {
+//     return {
+//       statusCode: 500,
+//       body: JSON.stringify({ error: 'File upload failed', details: error.message }),
+//     };
+//   }
+// };
+
+
+
