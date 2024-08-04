@@ -3,33 +3,36 @@
 const axios = require("axios");
 const { PDFDocument } = require("pdf-lib");
 const { Buffer } = require("buffer");
-const { getDeployStore } = require("@netlify/blobs");
+// const { getDeployStore } = require("@netlify/blobs");
 const { v4: uuidv4 } = require('uuid');
 const { jwtDecode } = require('jwt-decode');
-import { db, collection, addDoc, Timestamp } from './firebase';
+import { storage, ref, uploadBytes, getDownloadURL, db, collection, addDoc, Timestamp } from './firebase';
+// import { ref } from 'firebase/storage'
 require('dotenv').config();
 
 export const handler = async (req, context) => {
-  const deployID = process.env.DEPLOY_ID || context.clientContext.deployID
-  console.log('deployID', deployID)
+  // const deployID = process.env.DEPLOY_ID || context.clientContext.deployID
+  // console.log('deployID', deployID)
 
-  if(!deployID) {
-    return {
-      statusCode: 500,
-      body: JSON.stringify({ message: "DEPLOY_ID environment variable is not set" }),
-    }
-  }
+  // if(!deployID) {
+  //   return {
+  //     statusCode: 500,
+  //     body: JSON.stringify({ message: "DEPLOY_ID environment variable is not set" }),
+  //   }
+  // }
 console.log('no cry')
-  const userFiles = getDeployStore('userFiles', { deployID});
+console.log('user', context.clientContext.user)
+  // const userFiles = getDeployStore('userFiles', { deployID});
   let files, filenames, userToken;
   try {
+    // const { files, filenames, userToken } = JSON.parse(req.body);
     const body = JSON.parse(req.body);
     files = body.files;
     filenames = body.filenames;
-    console.log("Received files:", files, filenames, userToken);
+    // console.log("Received files:", files, filenames, userToken);
     userToken = body.userToken;
   } catch (error) {
-    console.error("Error parsing request body:", error);
+    // console.error("Error parsing request body:", error);
     return {
       statusCode: 400,
       body: JSON.stringify({ message: "Invalid request body" }),
@@ -45,17 +48,17 @@ console.log('no cry')
 
   try {
     const pdfDoc = await PDFDocument.create();
-    console.log("pdfDoc", pdfDoc);
+    // console.log("pdfDoc", pdfDoc);
 
     for (let i = 0; i < files.length; i++) {
       const buffer = Buffer.from(files[i], "base64");
-      console.log("buffer", buffer);
+      // console.log("buffer", buffer);
       const image = await pdfDoc.embedJpg(buffer);
-      console.log("image", image);
+      // console.log("image", image);
       const { width, height } = image.scale(1);
 
       const page = pdfDoc.addPage();
-      console.log("page", page);
+      // console.log("page", page);
 
       page.drawImage(image, {
         x: page.getWidth() / 2 - width / 2,
@@ -63,31 +66,37 @@ console.log('no cry')
         width,
         height,
       });
-      console.log(`Added image ${filenames[i]} to pdf`)
+      // console.log(`Added image ${filenames[i]} to pdf`)
     }
 
     const pdfBytes = await pdfDoc.save();
-    console.log("pdfBytes", pdfBytes);
+    // console.log("pdfBytes", pdfBytes);
     const pdfBase64 = Buffer.from(pdfBytes).toString("base64");
-    console.log("pdfBase64", pdfBase64);
+    // console.log("pdfBase64", pdfBase64);
 
     if (userToken) {
       const decodedToken = jwtDecode(userToken);
       const userEmail = decodedToken.email
 
-      // const userFiles = getDeployStore('userFiles')
-      console.log('userFiles', userFiles)
-
       const id = uuidv4()
-      // const id = crypto.randomUUID();
-      console.log('id', id)
+      // console.log('id', id)
+      const pdfFileRef = ref(storage, `pdfs/${id}.pdf`)
 
-      await userFiles.set(id, pdfBase64)
+      await uploadBytes(pdfFileRef, Buffer.from(pdfBase64, 'base64'))
+
+      const pdfURL = await getDownloadURL(pdfFileRef)
+
+      // const userFiles = getDeployStore('userFiles')
+      // console.log('userFiles', userFiles)
+
+      // const id = crypto.randomUUID();
+
+      // await userFiles.set(id, pdfBase64)
       await addDoc(collection(db, 'userFiles'), {
         id,
         userEmail,
-        filenames: filenames,
-        // filenames: Array.from(files).map(file => file.name),
+        filenames,
+        pdfURL,
         uploadedAt: Timestamp.fromDate(new Date())
       })
       // const response = await axios.post(
@@ -100,23 +109,24 @@ console.log('no cry')
       //     },
       //   }
       // );
-      console.log("File uploaded successfuly to firestore")
+      // console.log("File uploaded successfuly to firestore")
       return {
         statusCode: 200,
         body: JSON.stringify({
           message: "File uploaded successfully",
           // data: response.data,
+          pdfURL
         }),
       };
     } else {
-      console.log("Returning PDF as base64 string")
+      // console.log("Returning PDF as base64 string")
       return {
         statusCode: 200,
-        body: JSON.stringify({ pdf: pdfBase64 }),
+        body: JSON.stringify({ pdfURL: pdfBase64 }),
       };
     }
   } catch (error) {
-    console.error('Error processing files', error)
+    // console.error('Error processing files', error)
     return {
       statusCode: 500,
       body: JSON.stringify({
