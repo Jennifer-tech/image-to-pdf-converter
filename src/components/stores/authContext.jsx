@@ -32,7 +32,7 @@ export const AuthContextProvider = ({ children }) => {
             console.log('logout event')
         })
 
-        netlifyIdentity.on('init', () => {
+        netlifyIdentity.on('init', (user) => {
             console.log('trying out init')
             // once netlifyIdentity has initialized, if there's a user logged in, we get that back through the setUser
             setUser(user)
@@ -47,6 +47,7 @@ export const AuthContextProvider = ({ children }) => {
         return () => {
             netlifyIdentity.off('login')
             netlifyIdentity.off('logout')
+            netlifyIdentity.off('init')
         }
        
     }, [])
