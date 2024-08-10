@@ -1,38 +1,27 @@
-// import { useContext } from "react";
-
 const axios = require("axios");
 const { PDFDocument } = require("pdf-lib");
 const { Buffer } = require("buffer");
-// const { getDeployStore } = require("@netlify/blobs");
 const { v4: uuidv4 } = require('uuid');
 const { jwtDecode } = require('jwt-decode');
-import { storage, ref, uploadBytes, getDownloadURL, db, collection, addDoc, Timestamp } from './firebase';
+import { storage, ref, uploadBytes, getDownloadURL, db, collection, addDoc, Timestamp, doc, setDoc } from './firebase';
+// import { storage, ref, uploadBytes, getDownloadURL, db } from './firebase/storage';
+// import { collection, doc, setDoc, Timestamp } from 'firebase/firestore';
 // import { ref } from 'firebase/storage'
 require('dotenv').config();
 
 export const handler = async (req, context) => {
-  // const deployID = process.env.DEPLOY_ID || context.clientContext.deployID
-  // console.log('deployID', deployID)
-
-  // if(!deployID) {
-  //   return {
-  //     statusCode: 500,
-  //     body: JSON.stringify({ message: "DEPLOY_ID environment variable is not set" }),
-  //   }
-  // }
+  
 console.log('no cry')
-console.log('user', context.clientContext.user)
-  // const userFiles = getDeployStore('userFiles', { deployID});
   let files, filenames, userToken;
   try {
     // const { files, filenames, userToken } = JSON.parse(req.body);
     const body = JSON.parse(req.body);
     files = body.files;
     filenames = body.filenames;
-    // console.log("Received files:", files, filenames, userToken);
+    console.log("Received files:", files, filenames, userToken);
     userToken = body.userToken;
   } catch (error) {
-    // console.error("Error parsing request body:", error);
+    console.error("Error parsing request body:", error);
     return {
       statusCode: 400,
       body: JSON.stringify({ message: "Invalid request body" }),
@@ -48,17 +37,17 @@ console.log('user', context.clientContext.user)
 
   try {
     const pdfDoc = await PDFDocument.create();
-    // console.log("pdfDoc", pdfDoc);
+    console.log("pdfDoc", pdfDoc);
 
     for (let i = 0; i < files.length; i++) {
       const buffer = Buffer.from(files[i], "base64");
-      // console.log("buffer", buffer);
+      console.log("buffer", buffer);
       const image = await pdfDoc.embedJpg(buffer);
-      // console.log("image", image);
+      console.log("image", image);
       const { width, height } = image.scale(1);
 
       const page = pdfDoc.addPage();
-      // console.log("page", page);
+      console.log("page", page);
 
       page.drawImage(image, {
         x: page.getWidth() / 2 - width / 2,
@@ -66,25 +55,28 @@ console.log('user', context.clientContext.user)
         width,
         height,
       });
-      // console.log(`Added image ${filenames[i]} to pdf`)
+      console.log(`Added image ${filenames[i]} to pdf`)
     }
 
     const pdfBytes = await pdfDoc.save();
-    // console.log("pdfBytes", pdfBytes);
+    console.log("pdfBytes", pdfBytes);
     const pdfBase64 = Buffer.from(pdfBytes).toString("base64");
-    // console.log("pdfBase64", pdfBase64);
+    console.log("pdfBase64", pdfBase64);
 
     if (userToken) {
       const decodedToken = jwtDecode(userToken);
       const userEmail = decodedToken.email
+      console.log('userEmail', userEmail)
 
-      const id = uuidv4()
+      const pdfId = uuidv4()
       // console.log('id', id)
-      const pdfFileRef = ref(storage, `pdfs/${id}.pdf`)
+      const pdfFileRef = ref(storage, `pdfs/${pdfId}.pdf`)
+      console.log('pdfFileRef', pdfFileRef)
 
       await uploadBytes(pdfFileRef, Buffer.from(pdfBase64, 'base64'))
 
       const pdfURL = await getDownloadURL(pdfFileRef)
+      console.log('pdfURL', pdfURL)
 
       // const userFiles = getDeployStore('userFiles')
       // console.log('userFiles', userFiles)
@@ -92,13 +84,23 @@ console.log('user', context.clientContext.user)
       // const id = crypto.randomUUID();
 
       // await userFiles.set(id, pdfBase64)
-      await addDoc(collection(db, 'userFiles'), {
-        id,
-        userEmail,
-        filenames,
+
+      const userDocRef = doc(db, 'userFiles', userEmail, 'pdfs', pdfId);
+
+      await setDoc(userDocRef, {
+        fileName: filenames,
         pdfURL,
         uploadedAt: Timestamp.fromDate(new Date())
       })
+
+      // await addDoc(collection(db, 'userFiles'), {
+      //   id,
+      //   userEmail,
+      //   filenames,
+      //   pdfURL,
+      //   uploadedAt: Timestamp.fromDate(new Date())
+      // })
+
       // const response = await axios.post(
       //   `https://api.netlify.com/api/v1/sites/process.env.NETLIFY_SITE_ID/files`,
       //   pdfBase64,
