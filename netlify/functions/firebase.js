@@ -2,7 +2,7 @@
 import { initializeApp } from "firebase/app";
 import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage'
 import { getFirestore } from "firebase/firestore";
-import { collection, getDocs, addDoc, Timestamp } from "firebase/firestore";
+import { collection, getDocs, addDoc, Timestamp, doc, setDoc } from "firebase/firestore";
 // TODO: Add SDKs for Firebase products that you want to use
 // https://firebase.google.com/docs/web/setup#available-libraries
 
@@ -22,4 +22,4 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const storage = getStorage(app)
 const db = getFirestore(app);
-export { storage, db, uploadBytes, getDownloadURL, ref, collection, getDocs, Timestamp, addDoc };
+export { storage, db, uploadBytes, getDownloadURL, ref, collection, getDocs, Timestamp, addDoc, doc, setDoc };

@@ -11,7 +11,7 @@ export default function NavBar() {
   console.log('authReady', authReady)
 
   return (
-    <div className='h-80vh w-full border border-green-500'>
+    <div className='w-full border border-black'>
       <header>
         <nav className='flex bg-blue-700 top-0 left-0 fixed text-white h-14 w-full justify-between items-center px-10'>
           <div className='flex flex-row items-center space-x-1'>

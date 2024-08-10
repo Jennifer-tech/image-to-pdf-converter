@@ -4,6 +4,7 @@ import './App.css'
 import NavBar from './components/NavBar'
 import Home from './components/Home'
 import { AuthContextProvider } from './components/stores/authContext';
+import PdfListing from './components/PdfListing'
 
 function App() {
   // const [count, setCount] = useState(0)
@@ -14,6 +15,7 @@ function App() {
         <NavBar />
         <Routes>
           <Route path='/' element={<Home />}/>
+          <Route path='/pdfs' element={<PdfListing />} />
         </Routes>
       </Router>
       {/* <Component {...pageProps} /> */}

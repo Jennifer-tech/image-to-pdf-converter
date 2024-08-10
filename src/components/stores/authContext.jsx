@@ -15,7 +15,9 @@ const AuthContext = createContext({
 export const AuthContextProvider = ({ children }) => {
 
     // This is used to keep track of the current user when they log in and log out
-    const [user, setUser] = useState(null)
+    let savedUser = JSON.parse(localStorage.getItem("user"))
+    
+    const [user, setUser] = useState(savedUser)
     const [authReady, setAuthReady] = useState(false)
 
     console.log('Auth context starting')
@@ -23,6 +25,7 @@ export const AuthContextProvider = ({ children }) => {
     useEffect(() => {
         netlifyIdentity.on('login', (user) => {
             setUser(user)
+            localStorage.setItem('user', JSON.stringify(user)) //local storage only accepts strings
             netlifyIdentity.close()
             console.log('login event')
         })
@@ -58,6 +61,7 @@ export const AuthContextProvider = ({ children }) => {
     }
 
     const logout = () => {
+        localStorage.removeItem("user")
         netlifyIdentity.logout()
     }
 
