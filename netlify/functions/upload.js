@@ -11,17 +11,17 @@ require('dotenv').config();
 
 export const handler = async (req, context) => {
   
-console.log('no cry')
+// console.log('no cry')
   let files, filenames, userToken;
   try {
     // const { files, filenames, userToken } = JSON.parse(req.body);
     const body = JSON.parse(req.body);
     files = body.files;
     filenames = body.filenames;
-    console.log("Received files:", files, filenames, userToken);
+    // console.log("Received files:", files, filenames, userToken);
     userToken = body.userToken;
   } catch (error) {
-    console.error("Error parsing request body:", error);
+    // console.error("Error parsing request body:", error);
     return {
       statusCode: 400,
       body: JSON.stringify({ message: "Invalid request body" }),
@@ -37,17 +37,17 @@ console.log('no cry')
 
   try {
     const pdfDoc = await PDFDocument.create();
-    console.log("pdfDoc", pdfDoc);
+    // console.log("pdfDoc", pdfDoc);
 
     for (let i = 0; i < files.length; i++) {
       const buffer = Buffer.from(files[i], "base64");
-      console.log("buffer", buffer);
+      // console.log("buffer", buffer);
       const image = await pdfDoc.embedJpg(buffer);
-      console.log("image", image);
+      // console.log("image", image);
       const { width, height } = image.scale(1);
 
       const page = pdfDoc.addPage();
-      console.log("page", page);
+      // console.log("page", page);
 
       page.drawImage(image, {
         x: page.getWidth() / 2 - width / 2,
@@ -55,28 +55,28 @@ console.log('no cry')
         width,
         height,
       });
-      console.log(`Added image ${filenames[i]} to pdf`)
+      // console.log(`Added image ${filenames[i]} to pdf`)
     }
 
     const pdfBytes = await pdfDoc.save();
-    console.log("pdfBytes", pdfBytes);
+    // console.log("pdfBytes", pdfBytes);
     const pdfBase64 = Buffer.from(pdfBytes).toString("base64");
-    console.log("pdfBase64", pdfBase64);
+    // console.log("pdfBase64", pdfBase64);
 
     if (userToken) {
       const decodedToken = jwtDecode(userToken);
       const userEmail = decodedToken.email
-      console.log('userEmail', userEmail)
+      // console.log('userEmail', userEmail)
 
       const pdfId = uuidv4()
       // console.log('id', id)
       const pdfFileRef = ref(storage, `pdfs/${userEmail}/${pdfId}.pdf`)
-      console.log('pdfFileRef', pdfFileRef)
+      // console.log('pdfFileRef', pdfFileRef)
 
       await uploadBytes(pdfFileRef, Buffer.from(pdfBase64, 'base64'))
 
       const pdfURL = await getDownloadURL(pdfFileRef)
-      console.log('pdfURL', pdfURL)
+      // console.log('pdfURL', pdfURL)
 
       // const userFiles = getDeployStore('userFiles')
       // console.log('userFiles', userFiles)
