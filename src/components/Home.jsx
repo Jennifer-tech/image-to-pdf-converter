@@ -9,7 +9,7 @@ import { Link } from 'react-router-dom';
 
 export default function Home() {
   const { user } = useContext(AuthContext)
-  console.log('userHome', user)
+  // console.log('userHome', user)
   const [files, setFiles] = useState(null);
   const [pdfURL, setPdfURL] = useState(null)
   const [progress, setProgress] = useState(0)
@@ -71,7 +71,7 @@ export default function Home() {
           setProgress(percentCompleted)
         }
       });
-      console.log('response', response)
+      // console.log('response', response)
 
       if (response.data.pdfURL) {
         setPdfURL(response.data.pdfURL)
@@ -91,7 +91,7 @@ export default function Home() {
       }
     } catch (error) {
       toast.error('File upload failed')
-      console.log(error)
+      // console.log(error)
     }
   };
 

@@ -7,7 +7,7 @@ import { toast } from 'react-toastify';
 
 export default function PdfListing() {
   const { user } = useContext(AuthContext)
-  console.log('userPDF', user)
+  // console.log('userPDF', user)
   const [pdfs, setPdfs] = useState(null)
   // const [error, setError] = useState(null)
 
@@ -16,7 +16,7 @@ export default function PdfListing() {
       // e.preventDefault()
       try {
         const user = JSON.parse(localStorage.getItem('user'))
-        console.log('userStorage', user)
+        // console.log('userStorage', user)
 
         if (!user || !user.email) {
           toast.error('User not authenticated or email not available');
@@ -27,7 +27,7 @@ export default function PdfListing() {
             'User-Email': user.email
           }
         });
-        console.log('response', response)
+        // console.log('response', response)
         setPdfs(response.data);
       } catch (error) {
         console.error('Error fetching PDFs:', error);
@@ -36,13 +36,13 @@ export default function PdfListing() {
     if (user && user.email) {
       fetchPDFs()
     } else {
-      console.log('Waiting for user data...')
+      toast.info('Waiting for user data...')
     }
   }, [user]);
 
   const deletePdf = async (userEmail, fileId) => {
     try {
-      console.log('deletePdf called with:', { userEmail, fileId });
+      // console.log('deletePdf called with:', { userEmail, fileId });
 
       if (!userEmail || !fileId) {
         toast.error('User email or file ID not provided');
@@ -58,20 +58,20 @@ export default function PdfListing() {
           'Content-Type': 'application/json',  // Specify the content type as JSON
         }
       });
-      console.log('response', response)
+      // console.log('response', response)
 
       if (response.status === 200) {
-        console.log('PDF deleted successfully')
+        // console.log('PDF deleted successfully')
         // Updating the list of pdfs
         setPdfs((prevPdfs) => prevPdfs.filter((pdf) => pdf.fileId !== fileId));
         toast.success('PDF deleted successfully');
       } else {
-        console.error('Failed to delete PDF', response)
+        toast.error('Failed to delete PDF')
 
       }
 
     } catch (error) {
-      console.error('Error deleting PDF:', error)
+      // console.error('Error deleting PDF:', error)
       toast.error('Failed to delete PDF');
     }
   }
@@ -84,7 +84,7 @@ export default function PdfListing() {
         <h1 className='text-xl font-primaryBold p-5 text-center sticky'>Your PDFs</h1>
 
         {pdfs && pdfs.map((pdf, index) => {
-          console.log('pdf: ', pdf);
+          // console.log('pdf: ', pdf);
           return (
           < div key={index} className='flex justify-between m-5 items-center w-full' >
             <p className='text-sm font-primaryBold'>{pdf.fileName.join(', ')}</p>
@@ -92,7 +92,7 @@ export default function PdfListing() {
             <div className='flex flex-row items-center'>
               <a href={pdf.pdfURL} target='_blank' rel='noopener noreferrer' className='border border-blue-700 rounded-3xl bg-blue-700 p-2 text-sm mx-3'>Download</a>
               <MdDelete className='text-blue-700 size-7 cursor-pointer' onClick={() => {
-                console.log('Deleting:', pdf.fileName, pdf.fileId);
+                // console.log('Deleting:', pdf.fileName, pdf.fileId);
                 deletePdf(user.email, pdf.fileId)
               }} />
             </div>
