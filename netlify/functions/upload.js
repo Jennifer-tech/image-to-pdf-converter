@@ -70,7 +70,7 @@ console.log('no cry')
 
       const pdfId = uuidv4()
       // console.log('id', id)
-      const pdfFileRef = ref(storage, `pdfs/${pdfId}.pdf`)
+      const pdfFileRef = ref(storage, `pdfs/${userEmail}/${pdfId}.pdf`)
       console.log('pdfFileRef', pdfFileRef)
 
       await uploadBytes(pdfFileRef, Buffer.from(pdfBase64, 'base64'))
@@ -88,6 +88,7 @@ console.log('no cry')
       const userDocRef = doc(db, 'userFiles', userEmail, 'pdfs', pdfId);
 
       await setDoc(userDocRef, {
+        fileId: pdfId,
         fileName: filenames,
         pdfURL,
         uploadedAt: Timestamp.fromDate(new Date())
