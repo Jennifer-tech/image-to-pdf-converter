@@ -1,4 +1,3 @@
-const axios = require("axios");
 const { PDFDocument } = require("pdf-lib");
 const { Buffer } = require("buffer");
 const { v4: uuidv4 } = require('uuid');
