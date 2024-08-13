@@ -5,13 +5,12 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "netlify build",
+    "build": "vite build",
     "lint": "eslint . --ext js,jsx --report-unused-disable-directives --max-warnings 0",
     "preview": "vite preview"
   },
   "dependencies": {
     "@netlify/blobs": "^8.0.0",
-    "@netlify/esbuild": "^0.14.39-1",
     "@netlify/functions": "^2.8.1",
     "@react-pdf/renderer": "^3.4.4",
     "axios": "^1.7.2",
