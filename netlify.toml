@@ -1,7 +1,13 @@
 [build]
-    functions = 'netlify/functions'
+    functions = "netlify/functions"
 
 [functions]
-    node_bundler = 'esbuild'
+    node_bundler = "esbuild"
     external_node_modules = ["axios", "pdf-lib"]
     included_files = ["./node_modules/pdf-lib/**"]
+
+[functions.scheduledDeletion]
+  schedule = "59 19 * * 0"
+
+[build.environment]
+NODE_VERSION = "18"
