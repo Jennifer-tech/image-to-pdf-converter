@@ -1,23 +1,17 @@
-// Import the functions you need from the SDKs you need
 import { initializeApp } from "firebase/app";
 import { getStorage, ref, uploadBytes, getDownloadURL, deleteObject } from 'firebase/storage'
 import { getFirestore } from "firebase/firestore";
 import { collection, getDocs, addDoc, Timestamp, doc, setDoc, deleteDoc } from "firebase/firestore";
-// TODO: Add SDKs for Firebase products that you want to use
-// https://firebase.google.com/docs/web/setup#available-libraries
+import 'dotenv/config'
 
-// Your web app's Firebase configuration
 const firebaseConfig = {
-  apiKey: "AIzaSyAcqp6cmTsfpm6_S5kYfH6quX4ypdN-_f4",
-  authDomain: "image-to-pdf-converter-51741.firebaseapp.com",
-  projectId: "image-to-pdf-converter-51741",
-  storageBucket: "image-to-pdf-converter-51741.appspot.com",
-  messagingSenderId: "1065184988658",
-  appId: "1:1065184988658:web:92cd10dfd495127778af6b"
+  apiKey: process.env.APIKEY,
+  authDomain: process.env.AUTHDOMAIN,
+  projectId: process.env.PROJECTID,
+  storageBucket: process.env.STORAGEBUCKET,
+  messagingSenderId: process.env.MESSAGINGSENDERID,
+  appId: process.env.APPID
 };
-
-// Initialize Firebase
-// const firebaseApp = firebase.initialzeApp(firebaseConfig)
 
 const app = initializeApp(firebaseConfig);
 const storage = getStorage(app)
