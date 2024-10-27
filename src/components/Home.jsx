@@ -9,13 +9,20 @@ import { Link } from 'react-router-dom';
 export default function Home() {
   const { user } = useContext(AuthContext)
   const [files, setFiles] = useState(null);
-  const [pdfURL, setPdfURL] = useState(null)
+  const [pdfURL, setPdfURL] = useState(null);
+  const [blobUrl, setBlobUrl] = useState(null)
   const [progress, setProgress] = useState(0)
   const fileInputRef = useRef(null)
-console.log(files)
+
   useEffect(() => {
     netlifyIdentity.init();
   }, [])
+
+  useEffect(() => {
+    return () => {
+      if(blobUrl) URL.revokeObjectURL(blobUrl)
+    };
+  }, [blobUrl])
 
   const handleFileChange = (event) => {
     const selectedFiles = event.target.files;
@@ -53,26 +60,32 @@ console.log(files)
 
 
     try {
+      const responseType = user ? 'json' : 'blob'
       const response = await axios.post('/.netlify/functions/upload', {
         files: base64Files,
         filenames: Array.from(files).map(file => file.name),
         userToken: user ? user.token.access_token : null,
       }, {
         headers: { 'Content-Type': 'application/json' },
+        responseType,
         onUploadProgress: progressEvent => {
           const percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total)
           setProgress(percentCompleted)
         }
       });
 
-      if (response.data.pdfURL) {
-        console.log('response', response)
+      if(user && response.data.pdfURL) {
         setPdfURL(response.data.pdfURL)
         toast.success('File converted to pdf successfully')
         setFiles(null)
       } else {
-        toast.error(response.data.message)
-      }
+        const blob = response.data;
+        
+        const url = URL.createObjectURL(blob)
+        setBlobUrl(url);
+        
+        toast.success('File converted to pdf successfully');
+      } 
     } catch (error) {
       toast.error('File upload failed')
     }
@@ -88,6 +101,11 @@ console.log(files)
           <button onClick={handleUpload} className='border border-blue-700 rounded-md bg-blue-700 p-2 text-sm text-white'>Convert to pdf</button>
           {pdfURL && (
             <a href={pdfURL} download='converted.pdf' className='border border-blue-700 rounded-md bg-blue-700 p-2 text-sm text-white'>
+              Download PDF
+            </a>
+          )}
+          {blobUrl && (
+            <a href={blobUrl} download='converted.pdf' className='border border-blue-700 rounded-md bg-blue-700 p-2 text-sm text-white'>
               Download PDF
             </a>
           )}

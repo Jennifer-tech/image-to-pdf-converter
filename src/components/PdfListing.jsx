@@ -9,6 +9,9 @@ export default function PdfListing() {
   const { user } = useContext(AuthContext)
   const [pdfs, setPdfs] = useState(null)
 
+  function firebaseTimestampToMillis(timestamp) {
+    return timestamp.seconds * 1000 + timestamp.nanoseconds / 1000000;
+  }
   useEffect(() => {
     const fetchPDFs = async () => {
       try {
@@ -23,7 +26,12 @@ export default function PdfListing() {
             'User-Email': user.email
           }
         });
-        setPdfs(response.data);
+        const sortedPdfs = response.data.sort((b, a) => {
+          const dateA = firebaseTimestampToMillis(a.uploadedAt);
+          const dateB = firebaseTimestampToMillis(b.uploadedAt);
+          return dateA - dateB;
+        })
+        setPdfs(sortedPdfs);
       } catch (error) {
         console.error('Error fetching PDFs:', error);
       }
@@ -64,12 +72,8 @@ export default function PdfListing() {
       toast.error('Failed to delete PDF');
     }
   }
-  // The user is passed in the dependency array so that whenwver the user changes, if they
-  // run th epage and log in, it's going to try to re-fetch the data because it's going to run
-  // it again when it is a dependency, whenever this changes, this value is going to run this
   return (
     <div className='flex flex-col w-full items-center justify-center pt-14 overflow h-[100px-14px]'>
-      {/* <div className='flex flex-col max-w-3xl w-full max-h-[80vh] overflow-y-scroll overflow-x-hidden no-scrollbar shadow-lg shadow-blue-500/50 rounded-lg p-5 lg:w-full'> */}
       <div className='w-full bg-white sticky top-[56px] z-10'>
         <h1 className='text-xl font-primaryBold p-5 text-center'>Your PDFs</h1>
       </div>
@@ -81,11 +85,9 @@ export default function PdfListing() {
               <p className='text-sm font-primaryBold'>{pdf.fileName.join(', ')}</p>
               <p className='text-[9px] font-DancingScriptRegular lg:text-sm'>{new Date(pdf.uploadedAt.seconds * 1000).toLocaleString()}</p>
             </div>
-            {/* <div className='flex w-full justify-end px-4'> */}
-              
-            {/* </div> */}
+           
             <div className='w-2/6 flex flex-row items-center justify-between mx-10'>
-              <a href={pdf.pdfURL} target='_blank' rel='noopener noreferrer' className='border border-blue-700 rounded-md bg-blue-700 p-2 text-sm mx-3 text-white'>Download</a>
+              <a href={pdf.pdfURL} rel='noopener noreferrer' className='border border-blue-700 rounded-md bg-blue-700 p-2 text-sm mx-3 text-white'>Download</a>
               <MdDelete className='flex text-blue-700 size-7 cursor-pointer' onClick={() => {
                 deletePdf(user.email, pdf.fileId)
               }} />
@@ -94,7 +96,6 @@ export default function PdfListing() {
         )
       }
       )}
-      {/* </div> */}
 
     </div >
   );
