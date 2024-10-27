@@ -44,10 +44,7 @@ export const scheduledDeletion = async () => {
     const pdfsToDelete = await getOldPdfs();
 
     for (const pdf of pdfsToDelete) {
-      console.log('pdf', pdf)
       const { userEmail, fileId } = pdf;
-      console.log('userEmail', userEmail)
-      console.log('fileId', fileId)
 
       const storage = getStorage();
       const filePath = `pdfs/${userEmail}/${fileId}.pdf`;
@@ -87,7 +84,6 @@ async function getOldPdfs() {
   )
 
   return pdfQuerySnapshot.docs.map((doc) => {
-    console.log('doc2', doc);
 
     return {
       userEmail: doc.id.split('/')[1],

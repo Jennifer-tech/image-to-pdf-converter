@@ -10,7 +10,6 @@ export default async (req) => {
   
   let files, filenames, userToken;
   try {
-    // const { files, filenames, userToken } = JSON.parse(req.body);
     const bodyText = await req.text();
     const body = JSON.parse(bodyText);
     files = body.files;
@@ -43,20 +42,25 @@ export default async (req) => {
           throw new Error("Format not supported")
         }
       }
-      // const { width, height } = image.scale(0.5);
-
+      
       const page = pdfDoc.addPage();
 
+      const targetWidth = page.getWidth() * 0.8;
+      const targetHeight = page.getHeight() * 0.8;
+
+      const scaleFactor = Math.min(targetWidth /image.width, targetHeight / image.height);
+      const scaledWidth = image.width * scaleFactor;
+      const scaledHeight = image.height * scaleFactor;
+
       page.drawImage(image, {
-        x: 0,
-        y: 0,
-        width: page.getWidth(),
-        height: page.getHeight()
+        x: (page.getWidth() - scaledWidth) /2,
+        y: (page.getHeight() - scaledHeight) /2,
+        width: scaledWidth,
+        height: scaledHeight
       });
     }
 
     const pdfBytes = await pdfDoc.save();
-    const pdfBase64 = Buffer.from(pdfBytes).toString("base64");
 
     if (userToken) {
       const decodedToken = jwtDecode(userToken);
@@ -65,7 +69,7 @@ export default async (req) => {
       const pdfId = uuidv4()
       const pdfFileRef = ref(storage, `pdfs/${userEmail}/${pdfId}.pdf`)
 
-      await uploadBytes(pdfFileRef, Buffer.from(pdfBase64, 'base64'))
+      await uploadBytes(pdfFileRef, pdfBytes)
 
       const pdfURL = await getDownloadURL(pdfFileRef)
 
@@ -81,17 +85,16 @@ export default async (req) => {
       return new Response(JSON.stringify({
         message: "File uploaded successfully",
         pdfURL
-        // statusCode: 200,
-        // body: JSON.stringify({
-        //   message: "File ed successfully",
-        //   pdfURL
         }), {status: 200 })
       
     } else {
-      return new Response(JSON.stringify({ pdfURL: pdfBase64}), { status: 200 })
-      //   statusCode: 200,
-      //   body: JSON.stringify({ pdfURL: pdfBase64 }),
-      // };
+      return new Response(pdfBytes, {
+        headers: {
+          'Content-Type': 'application/pdf',
+          'Content-Disposition': `attachment; filename=${filenames[0] || 'download'}.pdf`
+        },
+        status:200
+      })
     }
   } catch (error) {
     return new Response(JSON.stringify({
