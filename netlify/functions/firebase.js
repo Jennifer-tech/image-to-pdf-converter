@@ -8,12 +8,12 @@ import { collection, getDocs, addDoc, Timestamp, doc, setDoc, deleteDoc } from "
 
 // Your web app's Firebase configuration
 const firebaseConfig = {
-  apiKey: "AIzaSyAcqp6cmTsfpm6_S5kYfH6quX4ypdN-_f4",
-  authDomain: "image-to-pdf-converter-51741.firebaseapp.com",
-  projectId: "image-to-pdf-converter-51741",
-  storageBucket: "image-to-pdf-converter-51741.appspot.com",
-  messagingSenderId: "1065184988658",
-  appId: "1:1065184988658:web:92cd10dfd495127778af6b"
+  apiKey: process.env.APIKEY,
+  authDomain: process.env.AUTHDOMAIN,
+  projectId: process.env.PROJECTID,
+  storageBucket: process.env.STORAGEBUCKET,
+  messagingSenderId: process.env.MESSAGINGSENDERID,
+  appId: process.env.APPID
 };
 
 // Initialize Firebase
