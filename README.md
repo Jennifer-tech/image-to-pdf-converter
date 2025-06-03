@@ -27,7 +27,7 @@ A simple web-based tool that allows users to upload image files (JPEG, PNG), con
 
 1. Clone the repository:
    ```bash
-   git clone https://github.com/your-username/image-to-pdf-converter.git
+   git clone https://github.com/Jennifer-tech/image-to-pdf-converter.git
    cd image-to-pdf-converter
    ```
 
